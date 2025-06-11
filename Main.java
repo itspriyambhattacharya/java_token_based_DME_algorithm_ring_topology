@@ -31,7 +31,7 @@ public class Main {
         Collections.sort(listOfProcesses, new Comparator<Process>() {
             @Override
             public int compare(Process p1, Process p2) {
-                return Integer.compare(p1.getId(), p2.getId());
+                return Integer.compare(p1.getProcessId(), p2.getProcessId());
             }
         });
 
