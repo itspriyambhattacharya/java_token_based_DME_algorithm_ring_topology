@@ -35,10 +35,10 @@ public class Process extends Thread {
         this.next = p1;
     }
 
-    private void enterCriticalSection() {
+    public synchronized void enterCriticalSection() {
         System.out.println("Process " + id + " entering critical section...");
         try {
-            Thread.sleep(1000); // Simulate work inside the critical section
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
