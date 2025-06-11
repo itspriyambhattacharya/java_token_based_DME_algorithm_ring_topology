@@ -36,6 +36,12 @@ public class Main {
             }
         });
 
+        for (int i = 0; i < listOfProcesses.size() - 1; i++) {
+            Process p = listOfProcesses.get(i);
+            p.setNext(listOfProcesses.get(i + 1));
+        }
+        listOfProcesses.get(listOfProcesses.size() - 1).setNext(listOfProcesses.get(0));
+
         br.close();
     }
 }
