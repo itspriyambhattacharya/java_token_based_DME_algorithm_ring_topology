@@ -1,12 +1,13 @@
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Process {
+public class Process extends Thread {
     // Attributes
     private int id;
     private boolean token;
     private Process next;
-    private Queue queue;
+    private Queue<Integer> queue;
+    public boolean wantToEnter;
 
     // Constructor
     public Process(int id) {
@@ -14,10 +15,11 @@ public class Process {
         this.token = false;
         this.next = null;
         this.queue = new LinkedList<>();
+        this.wantToEnter = false;
     }
 
     // Methods
-    public int getId() {
+    public int getProcessId() {
         return this.id;
     }
 
@@ -31,5 +33,15 @@ public class Process {
 
     public void setNext(Process p1) {
         this.next = p1;
+    }
+
+    private void enterCriticalSection() {
+        System.out.println("Process " + id + " entering critical section...");
+        try {
+            Thread.sleep(1000); // Simulate work inside the critical section
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Process " + id + " exiting critical section.");
     }
 }
