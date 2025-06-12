@@ -47,20 +47,18 @@ public class Process extends Thread {
 
     @Override
     public void run() {
-        while (true) {
-            if (hasToken) {
-                if (wantsToEnter) {
-                    enterCriticalSection();
-                    wantsToEnter = false;
-                }
-                hasToken = false;
-                next.setToken(true);
+        if (hasToken) {
+            if (wantsToEnter) {
+                enterCriticalSection();
+                wantsToEnter = false;
             }
-            try {
-                Thread.sleep(100); // Small delay to simulate time
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            hasToken = false;
+            next.setToken(true);
+        }
+        try {
+            Thread.sleep(100); // Small delay to simulate time
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 }
