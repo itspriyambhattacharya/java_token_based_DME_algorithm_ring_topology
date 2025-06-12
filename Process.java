@@ -4,18 +4,18 @@ import java.util.Queue;
 public class Process extends Thread {
     // Attributes
     private int id;
-    private boolean token;
+    private boolean hasToken;
     private Process next;
     private Queue<Integer> queue;
-    public boolean wantToEnter;
+    public boolean wantsToEnter;
 
     // Constructor
     public Process(int id) {
         this.id = id;
-        this.token = false;
+        this.hasToken = false;
         this.next = null;
         this.queue = new LinkedList<>();
-        this.wantToEnter = false;
+        this.wantsToEnter = false;
     }
 
     // Methods
@@ -24,11 +24,11 @@ public class Process extends Thread {
     }
 
     public boolean getToken() {
-        return this.token;
+        return this.hasToken;
     }
 
     public void setToken(boolean token) {
-        this.token = token;
+        this.hasToken = token;
     }
 
     public void setNext(Process p1) {
@@ -43,5 +43,24 @@ public class Process extends Thread {
             e.printStackTrace();
         }
         System.out.println("Process " + id + " exiting critical section.");
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            if (hasToken) {
+                if (wantsToEnter) {
+                    enterCriticalSection();
+                    wantsToEnter = false;
+                }
+                hasToken = false;
+                next.setToken(true);
+            }
+            try {
+                Thread.sleep(100); // Small delay to simulate time
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
