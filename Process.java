@@ -35,6 +35,10 @@ public class Process extends Thread {
         this.next = p1;
     }
 
+    public synchronized void exitCriticalSection() {
+        System.out.println("Process " + id + " exiting critical section.");
+    }
+
     public synchronized void enterCriticalSection() {
         System.out.println("Process " + id + " entering critical section...");
         try {
@@ -42,7 +46,6 @@ public class Process extends Thread {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        System.out.println("Process " + id + " exiting critical section.");
     }
 
     public synchronized void requestCriticalSection() {
