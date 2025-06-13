@@ -45,8 +45,7 @@ public class Process extends Thread {
         System.out.println("Process " + id + " exiting critical section.");
     }
 
-    @Override
-    public void run() {
+    public synchronized void requestCriticalSection() {
         if (wantsToEnter) {
             if (hasToken) {
                 enterCriticalSection();
@@ -55,10 +54,15 @@ public class Process extends Thread {
             hasToken = false;
             next.setToken(true);
         }
+    }
+
+    @Override
+    public void run() {
         try {
             Thread.sleep(100); // Small delay to simulate time
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        requestCriticalSection();
     }
 }
