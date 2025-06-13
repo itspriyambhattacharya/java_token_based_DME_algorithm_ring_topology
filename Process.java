@@ -15,7 +15,7 @@ public class Process extends Thread {
         this.hasToken = false;
         this.next = null;
         this.queue = new LinkedList<>();
-        this.wantsToEnter = false;
+        this.wantsToEnter = true;
     }
 
     // Methods
@@ -47,8 +47,8 @@ public class Process extends Thread {
 
     @Override
     public void run() {
-        if (hasToken) {
-            if (wantsToEnter) {
+        if (wantsToEnter) {
+            if (hasToken) {
                 enterCriticalSection();
                 wantsToEnter = false;
             }
