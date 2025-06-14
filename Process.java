@@ -42,6 +42,9 @@ public class Process extends Thread {
     public synchronized void exitCriticalSection() {
         System.out.println("Process " + id + " exiting critical section.");
         this.next.hasToken = true; // passing the token to the next connected node
+        while (!queue.isEmpty()) {
+            this.next.queue.offer(this.queue.poll());
+        }
         // preExit(queue);
     }
 
