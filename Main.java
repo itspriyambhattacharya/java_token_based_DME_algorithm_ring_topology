@@ -2,47 +2,38 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        System.out.print("\nEnter number of processes:\t");
+        System.out.print("Enter number of processes: ");
         int n = Integer.parseInt(br.readLine());
 
-        int processWithToken = (int) Math.floor(Math.random() * n);
+        List<Process> processList = new ArrayList<>();
 
-        List<Process> listOfProcesses = new ArrayList<>(n);
-
+        // Input process IDs
         for (int i = 0; i < n; i++) {
-            System.out.println("Process " + (i + 1));
-            System.out.print("\nEnter a process id:\t");
+            System.out.print("Enter Process ID " + (i + 1) + ": ");
             int pid = Integer.parseInt(br.readLine());
-
             Process p = new Process(pid);
-            listOfProcesses.add(p);
+            processList.add(p);
         }
 
-        listOfProcesses.get(processWithToken).setToken(true);
+        // Randomly assign token to one process
+        int tokenHolder = (int) (Math.random() * n);
+        processList.get(tokenHolder).setToken(true);
 
-        Collections.sort(listOfProcesses, new Comparator<Process>() {
-            @Override
-            public int compare(Process p1, Process p2) {
-                return Integer.compare(p1.getProcessId(), p2.getProcessId());
-            }
-        });
-
-        for (int i = 0; i < listOfProcesses.size() - 1; i++) {
-            Process p = listOfProcesses.get(i);
-            p.setNext(listOfProcesses.get(i + 1));
+        // Form ring in order of input
+        for (int i = 0; i < n - 1; i++) {
+            processList.get(i).setNext(processList.get(i + 1));
         }
-        listOfProcesses.get(listOfProcesses.size() - 1).setNext(listOfProcesses.get(0));
+        processList.get(n - 1).setNext(processList.get(0)); // Last points to first
 
-        for (Process process : listOfProcesses) {
-            process.start();
+        // Start all processes
+        for (Process p : processList) {
+            p.start();
         }
 
         br.close();
