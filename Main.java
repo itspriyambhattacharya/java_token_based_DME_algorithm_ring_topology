@@ -41,6 +41,10 @@ public class Main {
         }
         listOfProcesses.get(listOfProcesses.size() - 1).setNext(listOfProcesses.get(0));
 
+        for (Process process : listOfProcesses) {
+            process.start();
+        }
+
         br.close();
     }
 }
