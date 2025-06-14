@@ -2,41 +2,74 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 public class Process extends Thread {
-    private int id; // Unique Process ID
+    private int id; // Process ID
     private boolean hasToken; // Whether this process has the token
-    private Process next; // Next process in the ring
-    private Queue<Integer> queue; // Queue to hold pending requests
-    public boolean wantsToEnter; // Whether this process wants to enter CS
+    public Process next; // Next process in the ring
+    private Queue<Integer> queue; // Queue of pending requests
+    public boolean wantsToEnter; // Flag: does this process want to enter CS
 
-    // Constructor
     public Process(int id) {
         this.id = id;
         this.hasToken = false;
-        this.next = null;
         this.queue = new LinkedList<>();
-        this.wantsToEnter = true; // Initially every process wants to enter CS
+        this.wantsToEnter = true;
     }
 
-    // Set the next process (ring link)
     public void setNext(Process nextProcess) {
         this.next = nextProcess;
     }
 
-    // Set token status
     public void setToken(boolean token) {
         this.hasToken = token;
     }
 
-    // Get process ID
     public int getProcessId() {
         return this.id;
     }
 
-    // Critical Section Methods
+    @Override
+    public void run() {
+        try {
+            Thread.sleep((long) (Math.random() * 1000));
+            System.out.println("Process " + id + " requesting token...");
+            requestToken(this.id);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized boolean requestToken(int requesterId) {
+        if (this.hasToken) {
+            System.out.println("Process " + id + " has token. Processing request from " + requesterId);
+            if (!queue.contains(requesterId)) {
+                queue.offer(requesterId);
+            }
+            checkTokenAndEnterCS();
+            return true;
+        } else {
+            return next.requestToken(requesterId);
+        }
+    }
+
+    public synchronized void checkTokenAndEnterCS() {
+        if (this.hasToken) {
+            if (!queue.isEmpty() && queue.peek() == this.id) {
+                queue.poll(); // Remove self from queue
+                enterCriticalSection();
+                wantsToEnter = false;
+            } else if (this.wantsToEnter && queue.isEmpty()) {
+                enterCriticalSection();
+                wantsToEnter = false;
+            } else {
+                passToken();
+            }
+        }
+    }
+
     public synchronized void enterCriticalSection() {
         System.out.println("Process " + id + " is ENTERING critical section...");
         try {
-            Thread.sleep(1000); // Simulate work in CS
+            Thread.sleep(1000); // Simulate critical section execution
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -45,89 +78,15 @@ public class Process extends Thread {
 
     public synchronized void exitCriticalSection() {
         System.out.println("Process " + id + " is EXITING critical section.");
-        this.hasToken = false;
+        passToken();
+    }
 
-        // Pass token and queue to the next process
+    private synchronized void passToken() {
+        this.hasToken = false;
         next.setToken(true);
         while (!queue.isEmpty()) {
-            int nextRequest = queue.poll();
-            next.queue.offer(nextRequest);
+            next.queue.offer(queue.poll());
         }
-        next.checkTokenAndEnterCS(); // Start token handling in next
-    }
-
-    // Token Request Method
-    public synchronized boolean requestToken(int requesterId) {
-        // If this process has the token
-        if (this.hasToken) {
-            if (this.id == requesterId) {
-                // Requester has the token and is itself
-                return true;
-            } else {
-                // Another process is requesting
-                if (!queue.contains(requesterId)) {
-                    queue.offer(requesterId); // Add request to queue
-                }
-
-                // If this process doesn't want to enter CS, pass token
-                if (!this.wantsToEnter) {
-                    this.hasToken = false;
-                    next.setToken(true);
-                    while (!queue.isEmpty()) {
-                        next.queue.offer(queue.poll());
-                    }
-                    next.checkTokenAndEnterCS();
-                }
-
-                return false;
-            }
-        } else {
-            // If no token, forward the request to the next process
-            return next.requestToken(requesterId);
-        }
-    }
-
-    @Override
-    public void run() {
-        try {
-            Thread.sleep((long) (Math.random() * 1000));
-
-            requestCriticalSection();
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public synchronized void requestCriticalSection() {
-        if (wantsToEnter) {
-            boolean granted = requestToken(this.id);
-            if (granted) {
-                enterCriticalSection();
-                wantsToEnter = false;
-            }
-        }
-    }
-
-    // After receiving token, check if should enter CS
-    public synchronized void checkTokenAndEnterCS() {
-        if (this.hasToken) {
-            if (!queue.isEmpty() && queue.peek() == this.id) {
-                queue.poll();
-                enterCriticalSection();
-                wantsToEnter = false;
-            } else if (this.wantsToEnter && queue.isEmpty()) {
-                enterCriticalSection();
-                wantsToEnter = false;
-            } else {
-                // No need to enter CS, pass token
-                this.hasToken = false;
-                next.setToken(true);
-                while (!queue.isEmpty()) {
-                    next.queue.offer(queue.poll());
-                }
-                next.checkTokenAndEnterCS();
-            }
-        }
+        next.checkTokenAndEnterCS();
     }
 }
