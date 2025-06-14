@@ -41,7 +41,8 @@ public class Process extends Thread {
 
     public synchronized void exitCriticalSection() {
         System.out.println("Process " + id + " exiting critical section.");
-        preExit(queue);
+        this.next.hasToken = true; // passing the token to the next connected node
+        // preExit(queue);
     }
 
     public synchronized void enterCriticalSection() {
@@ -68,7 +69,8 @@ public class Process extends Thread {
     @Override
     public void run() {
         try {
-            Thread.sleep(100); // Small delay to simulate time
+            int rand = (int) Math.floor(Math.random() * 1000 + 1);
+            Thread.sleep(rand); // Small delay to simulate time
             requestCriticalSection();
         } catch (InterruptedException e) {
             e.printStackTrace();
